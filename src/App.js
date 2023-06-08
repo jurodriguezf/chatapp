@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import './App.css';
 
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import 'firebase/compat/auth';
 
-import { useAuthState, useSignInWithGoogle } from 'react-firebase-hooks/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 
 firebase.initializeApp ({
@@ -26,6 +26,11 @@ function App() {
 
   return (
     <div className="App">
+      <header>
+        <h1>Chat App</h1>
+        <SignOut/>
+      </header>
+
       <section>
         {user ? <ChatRoom/> : <SignIn/>}
       </section>
@@ -40,17 +45,19 @@ function SignIn() {
   }
 
   return (
-    <button onClick={signInWithGoogle}>Sign in with Google</button>
+    <button className='sign-in' onClick={signInWithGoogle}>Sign in with Google</button>
   )
 }
 
 function SignOut() {
   return auth.currentUser && (
-    <button onClick={() => auth.signOut()}>Sign Out</button>
+    <button className='sign-out' onClick={() => auth.signOut()}>Sign Out</button>
   )
 }
 
 function ChatRoom() {
+  const dummy = useRef();
+
   const messagesRef = firestore.collection('messages');
   const query = messagesRef.orderBy('createdAt').limit(25);
 
@@ -71,20 +78,22 @@ function ChatRoom() {
     })
 
     setFormValue('');
+
+    dummy.current.scrollIntoView({behavior: 'smooth'});
   }
 
-  return (
-    <>
-      <div>
-        {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
-      </div>
+  return (<>
+    <main>
+      {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
 
-      <form onSubmit={sendMessage}>
-        <input value={formValue} onChange={(e) => setFormValue(e.target.value)}/>
-        <button type='submit'>Send</button>
-      </form>
-    </>
-  )
+      <div ref={dummy}></div>
+    </main>
+
+    <form onSubmit={sendMessage}>
+      <input value={formValue} onChange={(e) => setFormValue(e.target.value)} placeholder='Write a message'/>
+      <button className='sendButton' type='submit'>Send</button>
+    </form>
+  </>)
 }
 
 function ChatMessage(props) {
@@ -92,12 +101,12 @@ function ChatMessage(props) {
 
   const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
-  return (
-    <div className={'message ${messageClass}'}>
-      <img src={photoURL}></img>
+  return (<>
+    <div className={`message ${messageClass}`}>
+      <img src={photoURL || 'https://st3.depositphotos.com/6672868/13701/v/450/depositphotos_137014128-stock-illustration-user-profile-icon.jpg'}></img>
       <p>{text}</p>
     </div>
-  )
+  </>)
 }
 
 export default App;
