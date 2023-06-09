@@ -43,6 +43,7 @@ function App() {
 function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [captchaToken, setCaptchaToken] = useState('');
   const captchaRef = useRef(null);
@@ -65,14 +66,14 @@ function SignIn() {
     e.preventDefault();
 
     if (!captchaToken) {
-      console.log('Please complete the CAPTCHA validation.');
+      setErrorMessage('Please complete the CAPTCHA validation.');
       return;
     }
 
     try {
       await auth.signInWithEmailAndPassword(email, password);
     } catch (error) {
-      console.log(error);
+      setErrorMessage(error);
     }
   };
 
@@ -83,7 +84,7 @@ function SignIn() {
     try {
       await auth.createUserWithEmailAndPassword(email, password);
     } catch (error) {
-      console.log(error);
+      setErrorMessage(error);
     }
   };
 
@@ -111,7 +112,9 @@ function SignIn() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Password"
         />
-        
+
+        <h4>{errorMessage}</h4>
+
         <button type="submit">Sign in</button>
       </form>
 
