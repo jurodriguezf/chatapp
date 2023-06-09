@@ -73,7 +73,7 @@ function SignIn() {
     try {
       await auth.signInWithEmailAndPassword(email, password);
     } catch (error) {
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     }
   };
 
@@ -84,7 +84,7 @@ function SignIn() {
     try {
       await auth.createUserWithEmailAndPassword(email, password);
     } catch (error) {
-      setErrorMessage(error);
+      setErrorMessage(error.message);
     }
   };
 
